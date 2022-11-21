@@ -20,11 +20,27 @@ public class HomeMainServlet3 extends HttpServlet {
 		if(inputDan==null) {
 			inputDan="1";
 		}
+		
+		String inputLimit = request.getParameter("limit");
+		
+		if(inputLimit==null) {
+			inputLimit="9";
+		}
+		
+		String inputColor = request.getParameter("color");
+		
+		if(inputColor==null) {
+			inputColor="black";
+		}
 
 		int dan = Integer.parseInt(inputDan);
-		response.getWriter().append(String.format("%d단<br />",dan));
+		int limit = Integer.parseInt(inputLimit);
+		
+
+		
+		response.getWriter().append(String.format("<div style=\"color:%s\">%d단<div />",inputColor,dan));
 		for (int i = 1; i <= 9; i++) {
-			response.getWriter().append(String.format("%d*%d=%d<br>", dan, i, dan * i));
+			response.getWriter().append(String.format("<div style=\"color:%s\">%d*%d=%d</div>",inputColor, dan, i, dan * i));
 		}
 	}
 
