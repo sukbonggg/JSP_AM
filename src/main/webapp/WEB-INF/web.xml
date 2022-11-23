@@ -49,4 +49,14 @@
     <servlet-name>ArticleDoDeleteServlet</servlet-name>
     <url-pattern>/ArticleDoDeleteServlet</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>ssds</display-name>
+    <servlet-name>ssds</servlet-name>
+    <servlet-class>com.koreaIT.java.am.ssds</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ssds</servlet-name>
+    <url-pattern>/ssds</url-pattern>
+  </servlet-mapping>
 </web-app>

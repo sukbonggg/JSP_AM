@@ -10,7 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/home/printDan2")
 public class HomeMainServlet3 extends HttpServlet {
-
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		response.setContentType("text/html; charset=UTF-8");
@@ -43,5 +43,9 @@ public class HomeMainServlet3 extends HttpServlet {
 			response.getWriter().append(String.format("<div style=\"color:%s\">%d*%d=%d</div>",inputColor, dan, i, dan * i));
 		}
 	}
-
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
+}
 }
