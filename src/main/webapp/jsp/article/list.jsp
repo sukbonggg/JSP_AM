@@ -39,7 +39,7 @@ int totalPage = (int)request.getAttribute("totalPage");
 			<td><%= (int)articleRow.get("id") %></td>
 			<td><%= (LocalDateTime)articleRow.get("regDate") %></td>
 			<td><a href="detail?id=<%= (int)articleRow.get("id") %>"><%= (String)articleRow.get("title") %></a></td>
-			<td><a href="doDelete?id=<%= (int)articleRow.get("id") %>" onclick="if(confirm('정말 삭제하시겠습니까?')==false) retrun false;">삭제버튼</a></td>
+			<td><a href="doDelete?id=<%= (int)articleRow.get("id") %>" onclick="if(confirm('정말 삭제하시겠습니까?') == false) return false;">삭제버튼</a></td>
 		</tr>
 	<% } %>
 	</table>
@@ -51,9 +51,37 @@ int totalPage = (int)request.getAttribute("totalPage");
 	</style>
 	
 	<div class="page">
-		<%for(int i = 1; i <= totalPage; i++){ %>
+		<%
+		if(cPage > 1){
+		%>	
+			<a href="list?page=1">◀◀</a>
+		<%
+		}
+		%>
+	
+		<%
+		int pageSize = 5;
+		int from = cPage - pageSize;
+		if(from < 1) {
+			from = 1;
+		}
+		int end = cPage + pageSize;
+		if(end > totalPage) {
+			end = totalPage;
+		}
+		for(int i = from; i <= end; i++){ 
+		%>
 			<a class="<%= cPage == i ? "red" : "" %>" href="list?page=<%= i %>"><%= i %></a>
-		<%} %>
+		<%
+		} 
+		%>
+		<%
+		if(cPage < totalPage){
+		%>	
+			<a href="list?page=<%= totalPage %>">▶▶</a>
+		<%
+		}
+		%>
 	</div>
 	
 </body>

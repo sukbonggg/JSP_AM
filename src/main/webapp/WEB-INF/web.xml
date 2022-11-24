@@ -59,4 +59,14 @@
     <servlet-name>ssds</servlet-name>
     <url-pattern>/ssds</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>MemeberJoinServlet</display-name>
+    <servlet-name>MemeberJoinServlet</servlet-name>
+    <servlet-class>com.koreaIT.java.mm.MemeberJoinServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>MemeberJoinServlet</servlet-name>
+    <url-pattern>/MemeberJoinServlet</url-pattern>
+  </servlet-mapping>
 </web-app>
