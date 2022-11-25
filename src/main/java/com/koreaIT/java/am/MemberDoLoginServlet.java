@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 import com.koreaIT.java.am.config.Config;
@@ -18,57 +16,55 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
-@WebServlet("/article/list")
-public class ArticleListServlet extends HttpServlet {
+@WebServlet("/member/dologin")
+public class MemberDoLoginServlet extends HttpServlet {
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html; charset=UTF-8");
-
+		
 		Connection conn = null;
+
 		try {
 			Class.forName(Config.getDBDriverClassName());
 		} catch (ClassNotFoundException e) {
 			System.out.println("드라이버 로딩 실패");
 		}
 
-
 		try {
 			conn = DriverManager.getConnection(Config.getDBUrl(), Config.getDBUser(), Config.getDBPassword());
-			int page =1;
-			if(request.getParameter("page")!=null && request.getParameter("page").length()!=0) {
-				page=Integer.parseInt(request.getParameter("page"));
-				
+
+			String loginId = request.getParameter("loginId");
+			String loginPw = request.getParameter("loginPw");
+			
+			
+			SecSql sql = SecSql.from("SELECT *");
+			sql.append("FROM `member`");
+			sql.append("WHERE loginId = ?", loginId);
+			
+			Map<String, Object> memberRow = DBUtil.selectRow(conn, sql);
+			
+			if (memberRow.isEmpty()) {
+				response.getWriter().append(String.format("<script>alert('%s는 존재하지 않는 아이디입니다.'); location.replace('login');</script>", loginId));
+				return;
 			}
 			
-			int itemsInAPage =10;
 			
-			int limitFrom=(page-1)*itemsInAPage;
+			if (memberRow.get("loginPw").equals(loginPw)==false) {
+				response.getWriter().append(String.format("<script>alert('비밀번호가 일치하지 않습니다.'); location.replace('login');</script>"));
+				return;
+			}
 			
-			SecSql sql = SecSql.from("SELECT COUNT(id)");
-			sql.append("FROM article");
+			HttpSession session = request.getSession();
+			session.setAttribute("loginedMemberLoignId", memberRow.get(loginId));
+			session.setAttribute("loginedMemberId", memberRow.get("id"));
 			
-			int totalCount=DBUtil.selectRowIntValue(conn, sql);
-			int totalPage =(int)Math.ceil((double)totalCount /itemsInAPage);
-			
-			sql = SecSql.from("SELECT *");
-			sql.append("FROM article");
-			sql.append("ORDER BY id DESC");
-			sql.append("LIMIT ?,?",limitFrom,itemsInAPage);
-
-			List<Map<String, Object>> articleRows = DBUtil.selectRows(conn, sql);
-
-			request.setAttribute("page", page);
-			request.setAttribute("totalPage", totalPage);
-			request.setAttribute("articleRows", articleRows);
-
-			request.getRequestDispatcher("/jsp/article/list.jsp").forward(request, response);
+			response.getWriter().append(String.format("<script>alert('%s 님 환영합니다!.'); location.replace('../home/main');</script>", memberRow.get("name")));
 
 		} catch (SQLException e) {
 			System.out.println("에러: " + e);
-		}catch (SQLErrorException e) {
+		} catch (SQLErrorException e) {
 			e.getOrigin().printStackTrace();
 		} finally {
 			try {
@@ -79,12 +75,11 @@ public class ArticleListServlet extends HttpServlet {
 				e.printStackTrace();
 			}
 		}
-
 	}
+	
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
+	}
 
-}
 }

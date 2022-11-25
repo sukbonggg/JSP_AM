@@ -28,14 +28,14 @@ import jakarta.servlet.http.HttpServletResponse;
 
 			Connection conn = null;
 			try {
-				Class.forName(Config.getDBDriberClassName());
+				Class.forName(Config.getDBDriverClassName());
 			} catch (ClassNotFoundException e) {
 				System.out.println("드라이버 로딩 실패");
 			}
 
 
 			try {
-				conn = DriverManager.getConnection(Config.getDBurl(),Config.getDBuser() ,Config.getDBPassword() );
+				conn = DriverManager.getConnection(Config.getDBUrl(), Config.getDBUser(), Config.getDBPassword());
 
 				int id = Integer.parseInt(request.getParameter("id")); 
 				

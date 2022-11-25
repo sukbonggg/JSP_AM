@@ -24,6 +24,7 @@ function JoinForm_submit() {
 		return;
 	}
 	
+	
 	form.loginPwConfrim.value =form.loginPwConfrim.value.trim();
 	
 	if(form.loginPwConfrim.value.length==0){
@@ -31,9 +32,7 @@ function JoinForm_submit() {
 		form.loginPwConfrim.focus();
 		return;
 	}
-	
-	
-	
+
 	
 	form.name.value =form.loginPw.value.trim();
 	
@@ -42,6 +41,16 @@ function JoinForm_submit() {
 		form.name.focus();
 		return;
 	}
+	
+
+	if(form.loginPw.value !=form.loginPwConfrim.vlaue){
+		alert('비밀번호가 일치하지 않습니다')
+		form.loginPw.focus();
+		return;
+	}
+	
+	form.submit();
+	
 }
 
 </script>
