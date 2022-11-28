@@ -4,11 +4,10 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 import com.koreaIT.java.am.config.Config;
+import com.koreaIT.java.am.controller.ArticleController;
 import com.koreaIT.java.am.exception.SQLErrorException;
 import com.koreaIT.java.am.util.DBUtil;
 import com.koreaIT.java.am.util.SecSql;
@@ -18,57 +17,65 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
-@WebServlet("/article/list")
-public class ArticleListServlet extends HttpServlet {
+@WebServlet("/s/*")
+public class DispatcherServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
+		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html; charset=UTF-8");
+		
+		String requestUri = request.getRequestURI();
+		String[] requestUriBits = requestUri.split("/");
+		
+		if(requestUriBits.length < 5) {
+			response.getWriter().append("올바른 요청이 아닙니다.");
+			return;
+		}
 
 		Connection conn = null;
+
 		try {
 			Class.forName(Config.getDBDriverClassName());
 		} catch (ClassNotFoundException e) {
 			System.out.println("드라이버 로딩 실패");
 		}
 
-
 		try {
 			conn = DriverManager.getConnection(Config.getDBUrl(), Config.getDBUser(), Config.getDBPassword());
-			int page =1;
-			if(request.getParameter("page")!=null && request.getParameter("page").length()!=0) {
-				page=Integer.parseInt(request.getParameter("page"));
-				
+
+			HttpSession session = request.getSession();
+			
+			boolean isLogined = false;
+			int loginedMemberId = -1;
+			String loginedMemberName = (String) session.getAttribute("loginedMemberName");
+			
+			if(session.getAttribute("loginedMemberLoginId") != null) {
+				loginedMemberId = (int) session.getAttribute("loginedMemberId");
+				isLogined = true;
 			}
 			
-			int itemsInAPage =10;
+			request.setAttribute("isLogined", isLogined);
+			request.setAttribute("loginedMemberId", loginedMemberId);
+			request.setAttribute("loginedMemberName", loginedMemberName);
 			
-			int limitFrom=(page-1)*itemsInAPage;
+			String controllerName = requestUriBits[3];
+			String actionMethodName = requestUriBits[4];
 			
-			SecSql sql = SecSql.from("SELECT COUNT(id)");
-			sql.append("FROM article");
+			if(controllerName.equals("article")) {
+				ArticleController articleController = new ArticleController(request, response, conn);
+				
+				if(actionMethodName.equals("list")) {
+					articleController.showList();
+				}
+			}
 			
-			int totalCount=DBUtil.selectRowIntValue(conn, sql);
-			int totalPage =(int)Math.ceil((double)totalCount /itemsInAPage);
-			
-			sql = SecSql.from("SELECT *");
-			sql.append("FROM article");
-			sql.append("ORDER BY id DESC");
-			sql.append("LIMIT ?,?",limitFrom,itemsInAPage);
-
-			List<Map<String, Object>> articleRows = DBUtil.selectRows(conn, sql);
-
-			request.setAttribute("page", page);
-			request.setAttribute("totalPage", totalPage);
-			request.setAttribute("articleRows", articleRows);
-
-			request.getRequestDispatcher("/jsp/article/list.jsp").forward(request, response);
-
 		} catch (SQLException e) {
 			System.out.println("에러: " + e);
-		}catch (SQLErrorException e) {
+		} catch (SQLErrorException e) {
 			e.getOrigin().printStackTrace();
 		} finally {
 			try {
@@ -81,10 +88,10 @@ public class ArticleListServlet extends HttpServlet {
 		}
 
 	}
-	@Override
+	
+    @Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
+	}
 
-}
 }

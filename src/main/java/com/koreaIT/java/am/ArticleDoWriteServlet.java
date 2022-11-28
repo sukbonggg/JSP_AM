@@ -23,15 +23,6 @@ public class ArticleDoWriteServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html; charset=UTF-8");
 		
-		HttpSession session =request.getSession(); 
-		
-		
-		
-		if (session.getAttribute("loginedMemberId")==null) {
-			response.getWriter().append(String.format("<script>alert('로그인 후 이용해주세요.'); location.replace('../member/login');</script>"));
-			return;
-		}
-		
 		Connection conn = null;
 
 		try {
@@ -40,30 +31,30 @@ public class ArticleDoWriteServlet extends HttpServlet {
 			System.out.println("드라이버 로딩 실패");
 		}
 
-
 		try {
 			conn = DriverManager.getConnection(Config.getDBUrl(), Config.getDBUser(), Config.getDBPassword());
 
-			String title = request.getParameter("title");
-			String body  = request.getParameter("body");
+			HttpSession session = request.getSession();
 			
-			int loginedMemberId =(int)session.getAttribute("loginedMemberId");
+			String title = request.getParameter("title");
+			String body = request.getParameter("body");
+			
+			int loginedMemberId = (int) session.getAttribute("loginedMemberId");
 			
 			SecSql sql = SecSql.from("INSERT INTO article");
-			sql.append("SET regDate=NOW()");
-			sql.append(",memberId=?",loginedMemberId);
-			sql.append(",title=?",title);
-			sql.append(",`body`=?",body);
+			sql.append("SET regDate = NOW()");
+			sql.append(", memberId = ?", loginedMemberId);
+			sql.append(", title = ?", title);
+			sql.append(", `body` = ?", body);
 			
-			int id =DBUtil.insert(conn, sql);
+			int id = DBUtil.insert(conn, sql);
 			
 			response.getWriter().append(String.format("<script>alert('%d번 글이 생성 되었습니다.'); location.replace('list');</script>", id));
 
 		} catch (SQLException e) {
 			System.out.println("에러: " + e);
-		}catch (SQLErrorException e) {
+		} catch (SQLErrorException e) {
 			e.getOrigin().printStackTrace();
-		
 		} finally {
 			try {
 				if (conn != null && !conn.isClosed()) {
@@ -74,10 +65,10 @@ public class ArticleDoWriteServlet extends HttpServlet {
 			}
 		}
 	}
+	
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
+	}
 
-}
 }

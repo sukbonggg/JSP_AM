@@ -1,10 +1,11 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="com.koreaIT.java.am.dto.Article" %>
 <%@ page import="java.time.LocalDateTime" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%
-List<Map<String, Object>> articleRows = (List<Map<String, Object>>)request.getAttribute("articleRows");
+List<Article> articles = (List<Article>)request.getAttribute("articles");
 int cPage = (int)request.getAttribute("page");
 int totalPage = (int)request.getAttribute("totalPage");
 %>
@@ -18,8 +19,14 @@ int totalPage = (int)request.getAttribute("totalPage");
 
 	<h1>게시물 리스트</h1>
 	
+	<%@ include file="../part/topBar.jsp" %>
+	
 	<div>
 		<a href="write">글쓰기</a>
+	</div>
+	
+	<div>
+		<a href="../home/main">메인으로 돌아가기</a>
 	</div>
 	
 	<table border="2" bordercolor="green">
@@ -31,15 +38,15 @@ int totalPage = (int)request.getAttribute("totalPage");
 			<th>번호</th>
 			<th>날짜</th>
 			<th>제목</th>
-			<th>삭제</th>
+			<th>작성자</th>
 		</tr>
 	
-	<% for(Map<String, Object> articleRow : articleRows){ %>
+	<% for(Article article : articles){ %>
 		<tr>
-			<td><%= (int)articleRow.get("id") %></td>
-			<td><%= (LocalDateTime)articleRow.get("regDate") %></td>
-			<td><a href="detail?id=<%= (int)articleRow.get("id") %>"><%= (String)articleRow.get("title") %></a></td>
-			<td><a href="doDelete?id=<%= (int)articleRow.get("id") %>" onclick="if(confirm('정말 삭제하시겠습니까?') == false) return false;">삭제버튼</a></td>
+			<td><%= (int)article.id %></td>
+			<td><%= (LocalDateTime)article.regDate %></td>
+			<td><a href="detail?id=<%= (int)article.id %>"><%= (String)article.title %></a></td>
+			<td><%= (String)article.writerName %></td>
 		</tr>
 	<% } %>
 	</table>
@@ -86,6 +93,22 @@ int totalPage = (int)request.getAttribute("totalPage");
 	
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

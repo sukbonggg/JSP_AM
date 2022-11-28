@@ -18,7 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-@WebServlet("/member/dologin")
+@WebServlet("/member/doLogin")
 public class MemberDoLoginServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -38,29 +38,28 @@ public class MemberDoLoginServlet extends HttpServlet {
 			String loginId = request.getParameter("loginId");
 			String loginPw = request.getParameter("loginPw");
 			
-			
 			SecSql sql = SecSql.from("SELECT *");
 			sql.append("FROM `member`");
 			sql.append("WHERE loginId = ?", loginId);
 			
 			Map<String, Object> memberRow = DBUtil.selectRow(conn, sql);
 			
-			if (memberRow.isEmpty()) {
-				response.getWriter().append(String.format("<script>alert('%s는 존재하지 않는 아이디입니다.'); location.replace('login');</script>", loginId));
+			if(memberRow.isEmpty()) {
+				response.getWriter().append(String.format("<script>alert('%s 는 존재하지 않는 아이디입니다'); location.replace('login');</script>", loginId));
 				return;
 			}
 			
-			
-			if (memberRow.get("loginPw").equals(loginPw)==false) {
-				response.getWriter().append(String.format("<script>alert('비밀번호가 일치하지 않습니다.'); location.replace('login');</script>"));
+			if(memberRow.get("loginPw").equals(loginPw) == false) {
+				response.getWriter().append(String.format("<script>alert('비밀번호가 일치하지 않습니다'); location.replace('login');</script>"));
 				return;
 			}
 			
 			HttpSession session = request.getSession();
-			session.setAttribute("loginedMemberLoignId", memberRow.get(loginId));
+			session.setAttribute("loginedMemberLoginId", memberRow.get("loginId"));
 			session.setAttribute("loginedMemberId", memberRow.get("id"));
+			session.setAttribute("loginedMemberName", memberRow.get("name"));
 			
-			response.getWriter().append(String.format("<script>alert('%s 님 환영합니다!.'); location.replace('../home/main');</script>", memberRow.get("name")));
+			response.getWriter().append(String.format("<script>alert('%s 님 환영합니다!'); location.replace('../home/main');</script>", memberRow.get("name")));
 
 		} catch (SQLException e) {
 			System.out.println("에러: " + e);

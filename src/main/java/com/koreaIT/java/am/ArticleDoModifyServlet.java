@@ -15,9 +15,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/article/doModify")
-
 public class ArticleDoModifyServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -30,7 +30,6 @@ public class ArticleDoModifyServlet extends HttpServlet {
 		} catch (ClassNotFoundException e) {
 			System.out.println("드라이버 로딩 실패");
 		}
-
 
 		try {
 			conn = DriverManager.getConnection(Config.getDBUrl(), Config.getDBUser(), Config.getDBPassword());
@@ -50,9 +49,8 @@ public class ArticleDoModifyServlet extends HttpServlet {
 
 		} catch (SQLException e) {
 			System.out.println("에러: " + e);
-		}catch (SQLErrorException e) {
+		} catch (SQLErrorException e) {
 			e.getOrigin().printStackTrace();
-		
 		} finally {
 			try {
 				if (conn != null && !conn.isClosed()) {

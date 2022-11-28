@@ -16,6 +16,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/article/detail")
 public class ArticleDetailServlet extends HttpServlet {
@@ -33,14 +34,31 @@ public class ArticleDetailServlet extends HttpServlet {
 			System.out.println("드라이버 로딩 실패");
 		}
 
-
 		try {
 			conn = DriverManager.getConnection(Config.getDBUrl(), Config.getDBUser(), Config.getDBPassword());
+
+			HttpSession session = request.getSession();
+			
+			boolean isLogined = false;
+			int loginedMemberId = -1;
+			String loginedMemberName = (String) session.getAttribute("loginedMemberName");
+			
+			if(session.getAttribute("loginedMemberLoginId") != null) {
+				loginedMemberId = (int) session.getAttribute("loginedMemberId");
+				isLogined = true;
+			}
+			
+			request.setAttribute("isLogined", isLogined);
+			request.setAttribute("loginedMemberId", loginedMemberId);
+			request.setAttribute("loginedMemberName", loginedMemberName);
+			
 			int id = Integer.parseInt(request.getParameter("id")); 
 			
-			SecSql sql = SecSql.from("SELECT *");
-			sql.append("FROM article");
-			sql.append("WHERE id = ?", id);
+			SecSql sql = SecSql.from("SELECT A.*, M.name AS writerName");
+			sql.append("FROM article AS A");
+			sql.append("INNER JOIN `member` AS M");
+			sql.append("ON A.memberId = M.id");
+			sql.append("WHERE A.id = ?", id);
 
 			Map<String, Object> articleRow = DBUtil.selectRow(conn, sql);
 
@@ -50,9 +68,8 @@ public class ArticleDetailServlet extends HttpServlet {
 
 		} catch (SQLException e) {
 			System.out.println("에러: " + e);
-		}catch (SQLErrorException e) {
+		} catch (SQLErrorException e) {
 			e.getOrigin().printStackTrace();
-		
 		} finally {
 			try {
 				if (conn != null && !conn.isClosed()) {
@@ -64,9 +81,9 @@ public class ArticleDetailServlet extends HttpServlet {
 		}
 
 	}
-	@Override
+	
+    @Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
 
